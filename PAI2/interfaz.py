@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 # CONFIGURACIÓN DE CONEXIÓN
 # ----------------------------
 HOST = "127.0.0.1"
-PORT = 3444
+PORT = 3443
 
 ENV_PATH = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(ENV_PATH)
