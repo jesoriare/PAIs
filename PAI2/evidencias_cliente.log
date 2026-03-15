@@ -11,3 +11,12 @@
 2026-03-12T14:03:44 | TLS cliente: version=TLSv1.3 cipher=('TLS_AES_256_GCM_SHA384', 'TLSv1.3', 256)
 2026-03-12T14:05:35 | TLS cliente: version=TLSv1.3 cipher=('TLS_AES_256_GCM_SHA384', 'TLSv1.3', 256)
 2026-03-12T14:07:16 | TLS cliente: version=TLSv1.3 cipher=('TLS_AES_256_GCM_SHA384', 'TLSv1.3', 256)
+2026-03-15T20:09:28 | No se pudo conectar al servidor SSL: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)
+2026-03-15T20:22:53 | No se pudo conectar al servidor SSL: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)
+2026-03-15T20:23:17 | No se pudo conectar al servidor SSL: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-03-15T20:23:36 | No se pudo conectar al servidor SSL: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+2026-03-15T20:24:32 | No se pudo conectar al servidor SSL: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)
+2026-03-15T20:25:37 | No se pudo conectar al servidor SSL: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-03-15T20:33:47 | No se pudo conectar al servidor SSL: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)
+2026-03-15T20:34:06 | No se pudo conectar al servidor SSL: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-03-15T20:34:46 | No se pudo conectar al servidor SSL: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto

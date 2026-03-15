@@ -9,13 +9,14 @@ import secrets
 import time
 import os
 import logging
+import signal
 from dotenv import load_dotenv
 
 # ----------------------------
 # CONFIGURACIÓN DE CONEXIÓN
 # ----------------------------
 HOST = "127.0.0.1"
-PORT = 3443
+PORT = 3444
 
 ENV_PATH = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(ENV_PATH)
@@ -39,6 +40,17 @@ logging.basicConfig(
 )
 
 # Función para calcular el HMAC de un mensaje con una clave secreta.
+
+def _salir(signum, frame):
+    try:
+        if 'root' in globals():
+            root.quit()
+            root.destroy()
+    except Exception:
+        pass
+    os._exit(0)
+
+signal.signal(signal.SIGINT, _salir)
 def calcular_mac(clave, mensaje):
     return hmac.new(clave, mensaje.encode('utf-8'), hashlib.sha256).hexdigest()
 
@@ -305,6 +317,8 @@ try:
     cliente.close()
 except:
     pass
+
+
 
 
 
