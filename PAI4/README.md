@@ -1,63 +1,57 @@
-﻿# PAI-4 DevSecOps Pipeline
+# PAI-4 DevSecOps Pipeline
 
-Proyecto DevSecOps completo para la entrega `PAI-4`, preparado como version final del trabajo.
+Proyecto DevSecOps completo para la entrega `PAI-4`, preparado como version final dentro de `PAI4/`.
 
 ## Resumen
 
-La soluciÃ³n se ha reconstruido desde cero tomando materiales previos solo como referencia de problemas habituales. La decisiÃ³n fue no reutilizar cÃ³digo anterior porque:
+La solucion final consolida lo mejor de las versiones previas y elimina restos que podian confundir la entrega.
 
-- los tests fallaban por errores ajenos al control de seguridad
-- el pipeline no estaba preparado para una ejecuciÃ³n limpia y trazable
-- habÃ­a configuraciones inseguras como un token de Sonar hardcodeado
+Incluye:
 
-La soluciÃ³n final incluye:
-
-- aplicaciÃ³n mÃ­nima en Flask con autenticaciÃ³n, autorizaciÃ³n, formulario validado y cÃ¡lculo de totales en servidor
-- una ruta legacy intencionalmente insegura para que SAST y DAST detecten vulnerabilidades reales
-- pipeline GitLab CI/CD con las fases obligatorias:
-  `sca -> sast -> iac -> test -> build -> deploy -> dast -> vulnerability-management`
+- aplicacion minima en Flask con autenticacion, autorizacion, validacion de entrada y calculo de negocio en servidor
+- una ruta legacy vulnerable para generar evidencia real en SAST y DAST
+- contenedor endurecido con usuario no privilegiado y `HEALTHCHECK`
+- separacion entre dependencias de ejecucion y de test
+- pipeline GitLab CI/CD con las fases `sca -> sast -> iac -> test -> build -> deploy -> dast -> vulnerability-management`
 - evidencias reales ya generadas en `reports/`
-
-## Documentos principales
-
-- `README.md`: visiÃ³n general del proyecto
-- `Manual-Verificacion.md`: guÃ­a paso a paso para comprobar que todo estÃ¡ bien
-- `Informe-PAI4.md`: memoria de entrega alineada con el enunciado
 
 ## Estructura
 
 ```text
-PAI44/
-â”œâ”€â”€ app/
-â”œâ”€â”€ docker/
-â”œâ”€â”€ security/
-â”œâ”€â”€ tests/
-â”œâ”€â”€ reports/
-â”œâ”€â”€ scripts/
-â”œâ”€â”€ .gitlab-ci.yml
-â”œâ”€â”€ README.md
-â””â”€â”€ Informe-PAI4.md
+PAI4/
+|-- app/
+|-- docker/
+|-- reports/
+|-- scripts/
+|-- security/
+|-- tests/
+|-- .gitlab-ci.yml
+|-- Informe-PAI4.md
+|-- Manual-Verificacion.md
+|-- README.md
+|-- requirements.txt
+`-- requirements-dev.txt
 ```
 
-## AplicaciÃ³n
+## Aplicacion
 
 La app expone:
 
 - `GET /login` y `POST /login`
-- `GET /dashboard` protegido por sesiÃ³n
+- `GET /dashboard` protegido por sesion
 - `GET /admin/audit` restringido a rol `admin`
-- `GET/POST /feedback` con validaciÃ³n de entrada y renderizado escapado
-- `POST /checkout` con cÃ¡lculo de total exclusivamente en servidor
-- `GET /legacy/search` como ruta legacy vulnerable para generar evidencia de scanners
-- `GET /health` para despliegue y verificaciÃ³n
+- `GET/POST /feedback` con validacion de entrada y renderizado escapado
+- `POST /checkout` con calculo de total exclusivamente en servidor
+- `GET /legacy/search` como ruta legacy vulnerable para evidencia de scanners
+- `GET /health` para despliegue y verificacion
 
-## EjecuciÃ³n local
+## Ejecucion local
 
 ### 1. Tests de seguridad
 
 ```powershell
 python -m venv .venv
-.\\.venv\\Scripts\\python -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python -m pytest
 ```
 
@@ -69,64 +63,28 @@ $env:PAI4_MEMBER_PASSWORD="cambia-esta-clave"
 docker compose -f docker/docker-compose.yml up --build
 ```
 
-La aplicaciÃ³n queda en `http://localhost:5000`.
+La aplicacion queda disponible en `http://localhost:5000`.
 
-### 3. ReproducciÃ³n de las fases de seguridad
+## Pipeline
 
-En GitLab CI se usan directamente los scripts del proyecto:
+La pipeline usa directamente:
 
-- `sh scripts/run_sca.sh`
-- `sh scripts/run_sast.sh`
-- `sh scripts/run_iac.sh`
-- `sh scripts/run_tests.sh`
-- `sh scripts/run_build.sh`
-- `sh scripts/run_deploy.sh`
-- `sh scripts/run_dast.sh`
-- `sh scripts/run_defectdojo.sh`
-
-En Windows local conviene ejecutar SAST, IaC y DAST con Docker, igual que en CI.
-
-## Variables de CI/CD
-
-Variables recomendadas:
-
-- `DEFECTDOJO_URL`
-- `DEFECTDOJO_API_TOKEN`
-- `PAI4_ADMIN_PASSWORD` opcional para despliegues deterministas
-- `PAI4_MEMBER_PASSWORD` opcional para despliegues deterministas
-
-Si no se definen las credenciales de DefectDojo, la fase `vulnerability-management` no falla: deja constancia de la limitaciÃ³n en `reports/vulnerability-management/`.
-
-## Evidencias generadas
-
-| Fase | Evidencia principal |
-| --- | --- |
-| SCA | `reports/sca/pip-audit-report.json` |
-| SAST | `reports/sast/semgrep.json` |
-| IaC | `reports/iac/trivy-iac-report.json` |
-| Test | `reports/tests/pytest-report.json` |
-| Build | `reports/build/docker-build.log` |
-| Deploy | `reports/deploy/healthcheck.json` |
-| DAST | `reports/dast/zap-report.json` |
-| Vulnerability management | `reports/vulnerability-management/README.md` |
+- `scripts/run_sca.sh`
+- `scripts/run_sast.sh`
+- `scripts/run_iac.sh`
+- `scripts/run_tests.sh`
+- `scripts/run_build.sh`
+- `scripts/run_deploy.sh`
+- `scripts/run_dast.sh`
+- `scripts/run_defectdojo.sh`
 
 ## Hallazgos intencionales
 
-- SCA: `security/sca/requirements-sca.txt` aÃ±ade `urllib3==1.25.8`
+- SCA: `security/sca/requirements-sca.txt` anade `urllib3==1.25.8`
 - SAST: `app/main.py` usa `Markup(query)` en la ruta legacy
-- IaC: `docker/Dockerfile` no define usuario no privilegiado
-- DAST: la app no incluye endurecimiento de cabeceras y mantiene la ruta legacy vulnerable
+- DAST: la app mantiene una superficie minima suficiente para generar findings reales
 
-## Endurecimiento recomendado
+## Entrega recomendada
 
-Para convertir esta demo en una versiÃ³n endurecida:
-
-- actualizar dependencias vulnerables detectadas por `pip-audit`
-- eliminar `Markup(query)` y renderizar el input escapado
-- aÃ±adir `USER appuser` y `HEALTHCHECK` al Dockerfile
-- incorporar protecciÃ³n CSRF, `Content-Security-Policy`, `X-Frame-Options` y `X-Content-Type-Options`
-
-## Informe
-
-La memoria principal estÃ¡ en `Informe-PAI4.md` y referencia las evidencias reales ya presentes en `reports/`.
-
+Para la entrega final, empaquetad unicamente el contenido de `PAI4/` con el nombre solicitado por el enunciado, por ejemplo `PAI4-ST9.zip`.
+Si cambiais codigo, pipeline o Dockerfile, regenerad los artefactos de `reports/` antes de comprimir.

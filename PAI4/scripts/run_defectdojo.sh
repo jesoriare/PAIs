@@ -41,7 +41,7 @@ submit_report() {
     -F "auto_create_context=true" \
     -F "product_type_name=PAI" \
     -F "product_name=PAI4 DevSecOps Pipeline" \
-    -F "engagement_name=PAI44 Evidence" \
+    -F "engagement_name=Nuevo Evidence" \
     -F "test_title=${test_title}" \
     -F "file=@${report_path}")"
 

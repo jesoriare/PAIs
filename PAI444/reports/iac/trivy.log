@@ -1,7 +1,0 @@
-2026-04-27T17:36:45Z	INFO	[misconfig] Misconfiguration scanning is enabled
-2026-04-27T17:36:45Z	INFO	[checks-client] Need to update the checks bundle
-2026-04-27T17:36:45Z	INFO	[checks-client] Downloading the checks bundle...
-234.65 KiB / 234.65 KiB [------------------------------------------------------] 100.00% ? p/s 200ms2026-04-27T17:36:46Z	INFO	Detected config files	num=1
-2026-04-27T17:36:46Z	INFO	[misconfig] Misconfiguration scanning is enabled
-2026-04-27T17:36:46Z	INFO	[checks-client] Using existing checks from cache	path="/root/.cache/trivy/policy/content"
-2026-04-27T17:36:47Z	INFO	Detected config files	num=1
