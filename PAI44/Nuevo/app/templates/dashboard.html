@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Protected dashboard</h2>
+  <dl>
+    <dt>Username</dt>
+    <dd>{{ user["username"] }}</dd>
+    <dt>Role</dt>
+    <dd>{{ user["role"] }}</dd>
+  </dl>
+  <ul>
+    <li><a href="{{ url_for('profile') }}">Profile API</a></li>
+    <li><a href="{{ url_for('feedback') }}">Feedback form</a></li>
+    {% if user["role"] == "admin" %}
+    <li><a href="{{ url_for('admin_audit') }}">Admin audit API</a></li>
+    {% endif %}
+  </ul>
+</section>
+{% endblock %}

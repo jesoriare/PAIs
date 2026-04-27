@@ -1,0 +1,178 @@
+[0KRunning with gitlab-runner 17.10.0~pre.41.g5c23fd8e (5c23fd8e)[0;m
+[0K  on blue-4.saas-linux-small-amd64.runners-manager.gitlab.com/default J2nyww-s, system ID: s_cf1798852952[0;m
+section_start:1745261367:prepare_executor[0K[0K[36;1mPreparing the "docker+machine" executor[0;m[0;m
+[0KUsing Docker executor with image sonarsource/sonar-scanner-cli:11 ...[0;m
+[0KPulling docker image sonarsource/sonar-scanner-cli:11 ...[0;m
+[0KUsing docker image sha256:13f0962529ea288983c4ff97a161295478469ed05ce07bdb157ab1fe279d0107 for sonarsource/sonar-scanner-cli:11 with digest sonarsource/sonar-scanner-cli@sha256:7462f132388135e32b948f8f18ff0db9ae28a87c6777f1df5b2207e04a6d7c5c ...[0;m
+section_end:1745261385:prepare_executor[0Ksection_start:1745261385:prepare_script[0K[0K[36;1mPreparing environment[0;m[0;m
+Running on runner-j2nyww-s-project-68491501-concurrent-0 via runner-j2nyww-s-s-l-s-amd64-1745261318-6056fefc...
+section_end:1745261390:prepare_script[0Ksection_start:1745261390:get_sources[0K[0K[36;1mGetting source from Git repository[0;m[0;m
+[32;1mFetching changes...[0;m
+Initialized empty Git repository in /builds/adrirob2003/pai4/.git/
+[32;1mCreated fresh repository.[0;m
+[32;1mChecking out 0b3dec68 as detached HEAD (ref is main)...[0;m
+
+[32;1mSkipping Git submodules setup[0;m
+[32;1m$ git remote set-url origin "${CI_REPOSITORY_URL}" || echo 'Not a git repository; skipping'[0;m
+section_end:1745261392:get_sources[0Ksection_start:1745261392:restore_cache[0K[0K[36;1mRestoring cache[0;m[0;m
+[32;1mChecking cache for sonar-cache-main-protected...[0;m
+Downloading cache from https://storage.googleapis.com/gitlab-com-runners-cache/project/68491501/sonar-cache-main-protected[0;m  ETag[0;m="2b9339ba1128ae79ae642292762e755a"
+[32;1mSuccessfully extracted cache[0;m
+section_end:1745261402:restore_cache[0Ksection_start:1745261402:download_artifacts[0K[0K[36;1mDownloading artifacts[0;m[0;m
+[32;1mDownloading artifacts for SCA (9779753390)...[0;m
+Downloading artifacts from coordinator... ok      [0;m  host[0;m=storage.googleapis.com id[0;m=9779753390 responseStatus[0;m=200 OK token[0;m=66_UyD233
+section_end:1745261403:download_artifacts[0Ksection_start:1745261403:step_script[0K[0K[36;1mExecuting "step_script" stage of the job script[0;m[0;m
+[0KUsing docker image sha256:13f0962529ea288983c4ff97a161295478469ed05ce07bdb157ab1fe279d0107 for sonarsource/sonar-scanner-cli:11 with digest sonarsource/sonar-scanner-cli@sha256:7462f132388135e32b948f8f18ff0db9ae28a87c6777f1df5b2207e04a6d7c5c ...[0;m
+[32;1m$ sonar-scanner -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN[0;m
+18:50:04.472 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties
+18:50:04.477 INFO  Project root configuration file: /builds/adrirob2003/pai4/sonar-project.properties
+18:50:04.497 INFO  SonarScanner CLI 7.1.0.4889
+18:50:04.499 INFO  Java 17.0.14 Amazon.com Inc. (64-bit)
+18:50:04.500 INFO  Linux 5.15.154+ amd64
+18:50:04.538 WARN  Both 'sonar.login' and 'sonar.token' (or the 'SONAR_TOKEN' env variable) are set, but only the latter will be used.
+18:50:04.543 INFO  User cache: /builds/adrirob2003/pai4/.sonar/cache
+18:50:06.776 INFO  Communicating with SonarQube Community Build 25.4.0.105899
+18:50:06.777 WARN  Use of 'sonar.login' property has been deprecated in favor of 'sonar.token' (or the env variable alternative 'SONAR_TOKEN'). Please use the latter when passing a token.
+18:50:06.778 INFO  JRE provisioning: os[linux], arch[x86_64]
+18:50:07.629 INFO  Starting SonarScanner Engine...
+18:50:07.633 INFO  Java 17.0.13 Eclipse Adoptium (64-bit)
+18:50:09.522 INFO  Load global settings
+18:50:10.273 INFO  Load global settings (done) | time=750ms
+18:50:10.277 INFO  Server id: 147B411E-AZZXpIUhR6wUggakd7zA
+18:50:10.295 INFO  Loading required plugins
+18:50:10.296 INFO  Load plugins index
+18:50:10.493 INFO  Load plugins index (done) | time=197ms
+18:50:10.495 INFO  Load/download plugins
+18:50:10.544 INFO  Load/download plugins (done) | time=50ms
+18:50:11.008 INFO  Process project properties
+18:50:11.027 INFO  Process project properties (done) | time=20ms
+18:50:11.038 INFO  Project key: adrirob2003_pai4_2eca0d5e-4cfc-4e79-bbb0-2218d00dbc0f
+18:50:11.041 INFO  Base dir: /builds/adrirob2003/pai4
+18:50:11.042 INFO  Working dir: /builds/adrirob2003/pai4/.scannerwork
+18:50:11.063 INFO  Load project settings for component key: 'adrirob2003_pai4_2eca0d5e-4cfc-4e79-bbb0-2218d00dbc0f'
+18:50:11.260 INFO  Load project settings for component key: 'adrirob2003_pai4_2eca0d5e-4cfc-4e79-bbb0-2218d00dbc0f' (done) | time=199ms
+18:50:11.314 INFO  Load quality profiles
+18:50:11.571 INFO  Load quality profiles (done) | time=258ms
+18:50:11.594 INFO  Auto-configuring with CI 'Gitlab CI'
+18:50:11.634 INFO  Load active rules
+18:50:12.419 INFO  Load active rules (done) | time=784ms
+18:50:12.427 INFO  Load analysis cache
+18:50:12.849 INFO  Load analysis cache | time=422ms
+18:50:13.292 WARN  The property 'sonar.login' is deprecated and will be removed in the future. Please use the 'sonar.token' property instead when passing a token.
+18:50:13.314 INFO  Preprocessing files...
+18:50:13.575 INFO  5 languages detected in 109 preprocessed files
+18:50:13.577 INFO  0 files ignored because of scm ignore settings
+18:50:13.581 INFO  Loading plugins for detected languages
+18:50:13.583 INFO  Load/download plugins
+18:50:13.602 INFO  Load/download plugins (done) | time=19ms
+18:50:13.862 INFO  Load project repositories
+18:50:14.225 INFO  Load project repositories (done) | time=363ms
+18:50:14.276 INFO  Indexing files...
+18:50:14.281 INFO  Project configuration:
+18:50:14.333 INFO  109 files indexed
+18:50:14.337 INFO  Quality profile for css: Sonar way
+18:50:14.340 INFO  Quality profile for docker: Sonar way
+18:50:14.341 INFO  Quality profile for json: Sonar way
+18:50:14.342 INFO  Quality profile for py: Sonar way
+18:50:14.343 INFO  Quality profile for web: Sonar way
+18:50:14.344 INFO  ------------- Run sensors on module adrirob2003_pai4_2eca0d5e-4cfc-4e79-bbb0-2218d00dbc0f
+18:50:14.402 INFO  Load metrics repository
+18:50:14.626 INFO  Load metrics repository (done) | time=223ms
+18:50:15.588 INFO  Sensor Python Sensor [python]
+18:50:15.593 WARN  Your code is analyzed as compatible with all Python 3 versions by default. You can get a more precise analysis by setting the exact Python version in your configuration via the parameter "sonar.python.version"
+18:50:15.625 INFO  Starting global symbols computation
+18:50:15.645 INFO  79 source files to be analyzed
+18:50:18.513 INFO  79/79 source files have been analyzed
+18:50:18.582 INFO  Starting rules execution
+18:50:18.602 INFO  79 source files to be analyzed
+18:50:22.806 INFO  79/79 source files have been analyzed
+18:50:22.807 INFO  The Python analyzer was able to leverage cached data from previous analyses for 0 out of 79 files. These files were not parsed.
+18:50:22.808 INFO  Sensor Python Sensor [python] (done) | time=7219ms
+18:50:22.809 INFO  Sensor Cobertura Sensor for Python coverage [python]
+18:50:22.827 INFO  Sensor Cobertura Sensor for Python coverage [python] (done) | time=19ms
+18:50:22.828 INFO  Sensor PythonXUnitSensor [python]
+18:50:22.844 INFO  Sensor PythonXUnitSensor [python] (done) | time=17ms
+18:50:22.846 INFO  Sensor Python Dependency Sensor [python]
+18:50:22.850 INFO  Sensor Python Dependency Sensor [python] (done) | time=6ms
+18:50:22.850 INFO  Sensor HTML [web]
+18:50:23.240 INFO  Sensor HTML [web] (done) | time=389ms
+18:50:23.244 INFO  Sensor JaCoCo XML Report Importer [jacoco]
+18:50:23.246 INFO  'sonar.coverage.jacoco.xmlReportPaths' is not defined. Using default locations: target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml,build/reports/jacoco/test/jacocoTestReport.xml
+18:50:23.248 INFO  No report imported, no coverage information will be imported by JaCoCo XML Report Importer
+18:50:23.249 INFO  Sensor JaCoCo XML Report Importer [jacoco] (done) | time=6ms
+18:50:23.250 INFO  Sensor IaC CloudFormation Sensor [iac]
+18:50:23.269 INFO  0 source files to be analyzed
+18:50:23.270 INFO  0/0 source files have been analyzed
+18:50:23.274 INFO  Sensor IaC CloudFormation Sensor [iac] (done) | time=23ms
+18:50:23.275 INFO  Sensor IaC AzureResourceManager Sensor [iac]
+18:50:23.379 INFO  0 source files to be analyzed
+18:50:23.380 INFO  0/0 source files have been analyzed
+18:50:23.382 INFO  Sensor IaC AzureResourceManager Sensor [iac] (done) | time=106ms
+18:50:23.383 INFO  Sensor Java Config Sensor [iac]
+18:50:23.406 INFO  0 source files to be analyzed
+18:50:23.408 INFO  0/0 source files have been analyzed
+18:50:23.410 INFO  Sensor Java Config Sensor [iac] (done) | time=28ms
+18:50:23.413 INFO  Sensor JavaScript inside HTML analysis [javascript]
+18:50:23.640 INFO  Detected os: Linux arch: amd64 alpine: false. Platform: LINUX_X64
+18:50:23.643 INFO  Deploy location /builds/adrirob2003/pai4/.sonar/js/node-runtime, tagetRuntime: /builds/adrirob2003/pai4/.sonar/js/node-runtime/node,  version: /builds/adrirob2003/pai4/.sonar/js/node-runtime/version.txt
+18:50:26.949 INFO  Using embedded Node.js runtime.
+18:50:26.950 INFO  Using Node.js executable: '/builds/adrirob2003/pai4/.sonar/js/node-runtime/node'.
+18:50:29.009 INFO  Memory configuration: OS (7954 MB), Node.js (2096 MB).
+18:50:29.224 INFO  20 source files to be analyzed
+18:50:31.458 INFO  20/20 source files have been analyzed
+18:50:31.459 INFO  Hit the cache for 0 out of 20
+18:50:31.462 INFO  Miss the cache for 20 out of 20: ANALYSIS_MODE_INELIGIBLE [20/20]
+18:50:31.463 INFO  Sensor JavaScript inside HTML analysis [javascript] (done) | time=8056ms
+18:50:31.463 INFO  Sensor CSS Rules [javascript]
+18:50:31.482 INFO  21 source files to be analyzed
+18:50:31.924 INFO  21/21 source files have been analyzed
+18:50:31.925 INFO  Hit the cache for 0 out of 0
+18:50:31.926 INFO  Miss the cache for 0 out of 0
+18:50:31.927 INFO  Sensor CSS Rules [javascript] (done) | time=462ms
+18:50:31.928 INFO  Sensor CSS Metrics [javascript]
+18:50:31.955 INFO  Sensor CSS Metrics [javascript] (done) | time=31ms
+18:50:31.956 INFO  Sensor IaC Docker Sensor [iac]
+18:50:32.047 INFO  1 source file to be analyzed
+18:50:32.143 INFO  1/1 source file has been analyzed
+18:50:32.144 INFO  Sensor IaC Docker Sensor [iac] (done) | time=188ms
+18:50:32.145 INFO  Sensor TextAndSecretsSensor [text]
+18:50:32.146 INFO  Available processors: 2
+18:50:32.146 INFO  Using 2 threads for analysis.
+18:50:32.700 INFO  The property "sonar.tests" is not set. To improve the analysis accuracy, we categorize a file as a test file if any of the following is true:
+  * The filename starts with "test"
+  * The filename contains "test." or "tests."
+  * Any directory in the file path is named: "doc", "docs", "test" or "tests"
+  * Any directory in the file path has a name ending in "test" or "tests"
+
+18:50:32.725 INFO  Using git CLI to retrieve untracked files
+18:50:32.730 WARN  Analyzing only language associated files, make sure to run the analysis inside a git repository to make use of inclusions specified via "sonar.text.inclusions"
+18:50:32.778 INFO  103 source files to be analyzed
+18:50:33.033 INFO  103/103 source files have been analyzed
+18:50:33.037 INFO  Sensor TextAndSecretsSensor [text] (done) | time=892ms
+18:50:33.041 INFO  ------------- Run sensors on project
+18:50:33.184 INFO  Sensor Zero Coverage Sensor
+18:50:33.205 INFO  Sensor Zero Coverage Sensor (done) | time=21ms
+18:50:33.206 INFO  ------------- Gather SCA dependencies on project
+18:50:33.209 INFO  Dependency analysis skipped
+18:50:33.234 INFO  CPD Executor 33 files had no CPD blocks
+18:50:33.235 INFO  CPD Executor Calculating CPD for 66 files
+18:50:33.311 INFO  CPD Executor CPD calculation finished (done) | time=76ms
+18:50:33.317 INFO  SCM revision ID '0b3dec68ae28024a8e2a3abbe02a5e6dc7aa662f'
+18:50:33.545 INFO  Analysis report generated in 210ms, dir size=672.6 kB
+18:50:33.919 INFO  Analysis report compressed in 373ms, zip size=345.0 kB
+18:50:34.599 INFO  Analysis report uploaded in 679ms
+18:50:34.602 INFO  ANALYSIS SUCCESSFUL, you can find the results at: https://5a7c-2a0c-5a81-d60f-5b00-d805-8977-71eb-765c.ngrok-free.app/dashboard?id=adrirob2003_pai4_2eca0d5e-4cfc-4e79-bbb0-2218d00dbc0f
+18:50:34.603 INFO  Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
+18:50:34.604 INFO  More about the report processing at https://5a7c-2a0c-5a81-d60f-5b00-d805-8977-71eb-765c.ngrok-free.app/api/ce/task?id=abba0038-d928-4842-9905-a1d6e303b283
+18:50:34.732 INFO  Analysis total time: 24.125 s
+18:50:34.735 INFO  SonarScanner Engine completed successfully
+18:50:35.093 INFO  EXECUTION SUCCESS
+18:50:35.094 INFO  Total time: 30.628s
+section_end:1745261436:step_script[0Ksection_start:1745261436:archive_cache[0K[0K[36;1mSaving cache for successful job[0;m[0;m
+[32;1mCreating cache sonar-cache-main-protected...[0;m
+/builds/adrirob2003/pai4/.sonar/cache: found 347 matching artifact files and directories[0;m 
+[0;33mWARNING: sonar-scanner/: no matching files. Ensure that the artifact path is relative to the working directory (/builds/adrirob2003/pai4)[0;m 
+Archive is up to date!                            [0;m 
+[32;1mCreated cache[0;m
+section_end:1745261436:archive_cache[0Ksection_start:1745261436:cleanup_file_variables[0K[0K[36;1mCleaning up project directory and file based variables[0;m[0;m
+section_end:1745261437:cleanup_file_variables[0K[32;1mJob succeeded[0;m

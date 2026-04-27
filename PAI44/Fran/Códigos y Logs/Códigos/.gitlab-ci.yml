@@ -1,0 +1,152 @@
+stages:
+  - sca
+  - sast
+  - iac
+  - test
+  - build
+  - deploy
+  - dast
+  - vulnerability-management
+
+variables:
+  DEFECTDOJO_URL: "$DEFECTDOJO_URL"
+  DEFECTDOJO_TOKEN: "$DEFECTDOJO_TOKEN"
+  PROJECT_NAME: "$PROJECT_NAME"
+  SONAR_HOST_URL: "http://localhost:9000"  # URL de SonarQube local o remoto
+  SONAR_TOKEN: "sqp_0af5aef71031ee3dd8820d51308afda04584b57e"  # Token de SonarQube
+  SONAR_PROJECT_KEY: "adrirob2003_pai4_2eca0d5e-4cfc-4e79-bbb0-2218d00dbc0f"  # Clave del proyecto en SonarQube
+
+# --- SCA: Análisis de dependencias con pip-audit ---
+SCA:
+  stage: sca
+  image: python:3.11  # O la imagen que uses para Python
+  script:
+    - pip install pip-audit  # Instalar pip-audit
+    - pip-audit --format json > pip-audit-report.json  # Generar el informe en formato JSON
+  artifacts:
+    paths:
+      - pip-audit-report.json  # Guardar el informe generado
+
+# --- SAST: Análisis estático con SonarQube ---
+SAST:
+  stage: sast
+  image:
+    name: sonarsource/sonar-scanner-cli:11
+    entrypoint: [""]
+
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+
+  script:
+  - sonar-scanner -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+
+
+  allow_failure: true
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+
+# --- IaC Security: Análisis de infraestructura como código con Trivy ---
+IaC-Security:
+  stage: iac
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy config --format json -o trivy-iac-report.json .  # Realiza el análisis de la infraestructura como código
+  artifacts:
+    paths:
+      - trivy-iac-report.json
+
+
+# --- TEST: Tests unitarios ---
+Test:
+  stage: test
+  image: python:3.10
+  before_script:
+    - pip install -r requirements.txt
+  script:
+    - chmod +x run_security_unit_tests.sh
+    - ./run_security_unit_tests.sh
+  artifacts:
+    when: always
+    paths:
+      - security-tests/
+    expire_in: 1 week
+
+# --- BUILD: Construcción de la imagen---
+Build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t registry.gitlab.com/$CI_PROJECT_PATH/myapp:latest .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker push registry.gitlab.com/$CI_PROJECT_PATH/myapp:latest
+
+# --- DEPLOY: Despliegue en contenedor para escaneo DAST ---
+Deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker pull registry.gitlab.com/$CI_PROJECT_PATH/myapp:latest
+    - docker run -d -p 8080:80 registry.gitlab.com/$CI_PROJECT_PATH/myapp:latest
+
+# --- DAST: Escaneo dinámico con OWASP ZAP ---
+DAST:
+  stage: dast
+  image: ghcr.io/zaproxy/zap-baseline:latest
+  script:
+    - zap-baseline.py -t http://host.docker.internal:8080 -J zap-report.json || true
+  artifacts:
+    paths:
+      - zap-report.json
+
+# --- Gestión de vulnerabilidades con DefectDojo ---
+Vulnerability-Management:
+  stage: vulnerability-management
+  image: curlimages/curl
+  script:
+    # SCA - pip-audit
+    - |
+      curl -X POST "$DEFECTDOJO_URL/import-scan/" \
+           -H "Authorization: Token $DEFECTDOJO_TOKEN" \
+           -F "file=@pip-audit-report.json" \
+           -F "scan_type=Python Audit Scan" \
+           -F "engagement_name=PAI4-ST4-SCA"           
+    # IaC - Trivy config
+    - |
+      curl -X POST "$DEFECTDOJO_URL/import-scan/" \
+           -H "Authorization: Token $DEFECTDOJO_TOKEN" \
+           -F "file=@trivy-iac-report.json" \
+           -F "scan_type=IaC Scan" \
+           -F "engagement_name=$PROJECT_NAME-IaC"
+    # Container - Trivy image
+    - |
+      curl -X POST "$DEFECTDOJO_URL/import-scan/" \
+           -H "Authorization: Token $DEFECTDOJO_TOKEN" \
+           -F "file=@trivy-report.json" \
+           -F "scan_type=Container Scanning" \
+           -F "engagement_name=$PROJECT_NAME-Build"
+    # DAST - ZAP scan
+    - |
+      curl -X POST "$DEFECTDOJO_URL/import-scan/" \
+           -H "Authorization: Token $DEFECTDOJO_TOKEN" \
+           -F "file=@zap-report.json" \
+           -F "scan_type=ZAP Scan" \
+           -F "engagement_name=$PROJECT_NAME-DAST"

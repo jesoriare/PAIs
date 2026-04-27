@@ -1,0 +1,31 @@
+Creating test database for alias 'default'...
+Found 9 test(s).
+System check identified no issues (0 silenced).
+..F..F...
+======================================================================
+FAIL: test_login_invalid_password_fails (custom_user.tests.test_security.CustomUserSecurityTests)
+Asegura que no se puede iniciar sesión con una contraseña incorrecta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/builds/adrirob2003/pai4/custom_user/tests/test_security.py", line 58, in test_login_invalid_password_fails
+    self.assertContains(response, "Please enter a correct", status_code=200)
+  File "/usr/local/lib/python3.10/site-packages/django/test/testcases.py", line 660, in assertContains
+    self.assertTrue(
+AssertionError: False is not true : Couldn't find 'Please enter a correct' in response
+
+======================================================================
+FAIL: test_registration_duplicate_email_rejected (custom_user.tests.test_security.CustomUserSecurityTests)
+Verifica que no se puede registrar otro usuario con el mismo email.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/builds/adrirob2003/pai4/custom_user/tests/test_security.py", line 48, in test_registration_duplicate_email_rejected
+    self.assertContains(response, "User with this Email address already exists.", status_code=200)  # mensaje puede variar
+  File "/usr/local/lib/python3.10/site-packages/django/test/testcases.py", line 660, in assertContains
+    self.assertTrue(
+AssertionError: False is not true : Couldn't find 'User with this Email address already exists.' in response
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.131s
+
+FAILED (failures=2)
+Destroying test database for alias 'default'...
