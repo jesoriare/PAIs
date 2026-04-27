@@ -1,0 +1,11 @@
+services:
+  pai4-web:
+    build: ..
+    container_name: pai4-devsecops-web
+    ports:
+      - "5000:5000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true

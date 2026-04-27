@@ -1,0 +1,96 @@
+stages:
+  - sca
+  - sast
+  - iac
+  - test
+  - build
+  - dast
+  - vulnerability-management
+
+default:
+  before_script:
+    - mkdir -p reports/sca reports/sast reports/iac reports/tests reports/build reports/dast
+
+SCA:
+  stage: sca
+  image: python:3.11
+  script:
+    - pip install pip-audit
+    - pip-audit -r requirements.txt -f json -o reports/sca/pip-audit-report.json || true
+  artifacts:
+    when: always
+    paths:
+      - reports/sca/
+
+SAST:
+  stage: sast
+  image: python:3.11
+  script:
+    - pip install bandit
+    - bandit -r src tests -f json -o reports/sast/bandit-report.json || true
+  artifacts:
+    when: always
+    paths:
+      - reports/sast/
+
+IaC:
+  stage: iac
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy config --format json -o reports/iac/trivy-config-report.json . || true
+  artifacts:
+    when: always
+    paths:
+      - reports/iac/
+
+Test:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install -r requirements-dev.txt
+    - chmod +x scripts/run_security_unit_tests.sh
+    - ./scripts/run_security_unit_tests.sh
+  artifacts:
+    when: always
+    paths:
+      - reports/tests/
+
+Build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t pai4-devsecops:latest . 2>&1 | tee reports/build/docker-build.log
+  artifacts:
+    when: always
+    paths:
+      - reports/build/
+
+DAST:
+  stage: dast
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t pai4-devsecops:latest .
+    - docker run -d --name pai4-web -p 5000:5000 pai4-devsecops:latest
+    - sleep 5
+    - docker run --rm --network host -v ${CI_PROJECT_DIR}/reports/dast:/zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://127.0.0.1:5000 -J zap-report.json || true
+    - docker stop pai4-web || true
+  artifacts:
+    when: always
+    paths:
+      - reports/dast/
+
+Vulnerability-Management:
+  stage: vulnerability-management
+  image: curlimages/curl:latest
+  rules:
+    - if: '$DEFECTDOJO_URL && $DEFECTDOJO_TOKEN'
+  script:
+    - echo "Importando resultados a DefectDojo"
+    - chmod +x scripts/import_defectdojo.sh
+    - ./scripts/import_defectdojo.sh
