@@ -1,18 +1,18 @@
-# PAI-4 DevSecOps Pipeline
+﻿# PAI-4 DevSecOps Pipeline
 
-Proyecto DevSecOps completo para la entrega `PAI-4`, implementado por completo dentro de `Nuevo/`.
+Proyecto DevSecOps completo para la entrega `PAI-4`, preparado como version final del trabajo.
 
 ## Resumen
 
-La solución se ha reconstruido desde cero tomando `Fran/` solo como referencia de problemas previos. La decisión fue no reutilizar su código porque:
+La soluciÃ³n se ha reconstruido desde cero tomando materiales previos solo como referencia de problemas habituales. La decisiÃ³n fue no reutilizar cÃ³digo anterior porque:
 
 - los tests fallaban por errores ajenos al control de seguridad
-- el pipeline no estaba preparado para una ejecución limpia y trazable
-- había configuraciones inseguras como un token de Sonar hardcodeado
+- el pipeline no estaba preparado para una ejecuciÃ³n limpia y trazable
+- habÃ­a configuraciones inseguras como un token de Sonar hardcodeado
 
-La solución final incluye:
+La soluciÃ³n final incluye:
 
-- aplicación mínima en Flask con autenticación, autorización, formulario validado y cálculo de totales en servidor
+- aplicaciÃ³n mÃ­nima en Flask con autenticaciÃ³n, autorizaciÃ³n, formulario validado y cÃ¡lculo de totales en servidor
 - una ruta legacy intencionalmente insegura para que SAST y DAST detecten vulnerabilidades reales
 - pipeline GitLab CI/CD con las fases obligatorias:
   `sca -> sast -> iac -> test -> build -> deploy -> dast -> vulnerability-management`
@@ -20,44 +20,44 @@ La solución final incluye:
 
 ## Documentos principales
 
-- `README.md`: visión general del proyecto
-- `Manual-Verificacion.md`: guía paso a paso para comprobar que todo está bien
+- `README.md`: visiÃ³n general del proyecto
+- `Manual-Verificacion.md`: guÃ­a paso a paso para comprobar que todo estÃ¡ bien
 - `Informe-PAI4.md`: memoria de entrega alineada con el enunciado
 
 ## Estructura
 
 ```text
-Nuevo/
-├── app/
-├── docker/
-├── security/
-├── tests/
-├── reports/
-├── scripts/
-├── .gitlab-ci.yml
-├── README.md
-└── Informe-PAI4.md
+PAI44/
+â”œâ”€â”€ app/
+â”œâ”€â”€ docker/
+â”œâ”€â”€ security/
+â”œâ”€â”€ tests/
+â”œâ”€â”€ reports/
+â”œâ”€â”€ scripts/
+â”œâ”€â”€ .gitlab-ci.yml
+â”œâ”€â”€ README.md
+â””â”€â”€ Informe-PAI4.md
 ```
 
-## Aplicación
+## AplicaciÃ³n
 
 La app expone:
 
 - `GET /login` y `POST /login`
-- `GET /dashboard` protegido por sesión
+- `GET /dashboard` protegido por sesiÃ³n
 - `GET /admin/audit` restringido a rol `admin`
-- `GET/POST /feedback` con validación de entrada y renderizado escapado
-- `POST /checkout` con cálculo de total exclusivamente en servidor
+- `GET/POST /feedback` con validaciÃ³n de entrada y renderizado escapado
+- `POST /checkout` con cÃ¡lculo de total exclusivamente en servidor
 - `GET /legacy/search` como ruta legacy vulnerable para generar evidencia de scanners
-- `GET /health` para despliegue y verificación
+- `GET /health` para despliegue y verificaciÃ³n
 
-## Ejecución local
+## EjecuciÃ³n local
 
 ### 1. Tests de seguridad
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements.txt
+.\\.venv\\Scripts\\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python -m pytest
 ```
 
@@ -69,9 +69,9 @@ $env:PAI4_MEMBER_PASSWORD="cambia-esta-clave"
 docker compose -f docker/docker-compose.yml up --build
 ```
 
-La aplicación queda en `http://localhost:5000`.
+La aplicaciÃ³n queda en `http://localhost:5000`.
 
-### 3. Reproducción de las fases de seguridad
+### 3. ReproducciÃ³n de las fases de seguridad
 
 En GitLab CI se usan directamente los scripts del proyecto:
 
@@ -95,7 +95,7 @@ Variables recomendadas:
 - `PAI4_ADMIN_PASSWORD` opcional para despliegues deterministas
 - `PAI4_MEMBER_PASSWORD` opcional para despliegues deterministas
 
-Si no se definen las credenciales de DefectDojo, la fase `vulnerability-management` no falla: deja constancia de la limitación en `reports/vulnerability-management/`.
+Si no se definen las credenciales de DefectDojo, la fase `vulnerability-management` no falla: deja constancia de la limitaciÃ³n en `reports/vulnerability-management/`.
 
 ## Evidencias generadas
 
@@ -112,20 +112,21 @@ Si no se definen las credenciales de DefectDojo, la fase `vulnerability-manageme
 
 ## Hallazgos intencionales
 
-- SCA: `security/sca/requirements-sca.txt` añade `urllib3==1.25.8`
+- SCA: `security/sca/requirements-sca.txt` aÃ±ade `urllib3==1.25.8`
 - SAST: `app/main.py` usa `Markup(query)` en la ruta legacy
 - IaC: `docker/Dockerfile` no define usuario no privilegiado
 - DAST: la app no incluye endurecimiento de cabeceras y mantiene la ruta legacy vulnerable
 
 ## Endurecimiento recomendado
 
-Para convertir esta demo en una versión endurecida:
+Para convertir esta demo en una versiÃ³n endurecida:
 
 - actualizar dependencias vulnerables detectadas por `pip-audit`
 - eliminar `Markup(query)` y renderizar el input escapado
-- añadir `USER appuser` y `HEALTHCHECK` al Dockerfile
-- incorporar protección CSRF, `Content-Security-Policy`, `X-Frame-Options` y `X-Content-Type-Options`
+- aÃ±adir `USER appuser` y `HEALTHCHECK` al Dockerfile
+- incorporar protecciÃ³n CSRF, `Content-Security-Policy`, `X-Frame-Options` y `X-Content-Type-Options`
 
 ## Informe
 
-La memoria principal está en `Informe-PAI4.md` y referencia las evidencias reales ya presentes en `reports/`.
+La memoria principal estÃ¡ en `Informe-PAI4.md` y referencia las evidencias reales ya presentes en `reports/`.
+

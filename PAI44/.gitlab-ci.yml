@@ -19,9 +19,10 @@ variables:
 
 sca:
   stage: sca
-  image: python:3.11-slim
+  image: python:3.11.11-slim
   before_script:
-    - pip install --no-cache-dir --upgrade pip pip-audit
+    - pip install --no-cache-dir --upgrade pip
+    - pip install --no-cache-dir pip-audit==2.9.0
   script:
     - sh scripts/run_sca.sh
   artifacts:
@@ -30,7 +31,7 @@ sca:
 
 sast:
   stage: sast
-  image: semgrep/semgrep:latest
+  image: semgrep/semgrep:1.123.0
   script:
     - sh scripts/run_sast.sh
   artifacts:
@@ -40,7 +41,7 @@ sast:
 iac:
   stage: iac
   image:
-    name: aquasec/trivy:latest
+    name: aquasec/trivy:0.65.0
     entrypoint: [""]
   script:
     - sh scripts/run_iac.sh
@@ -50,10 +51,10 @@ iac:
 
 test:
   stage: test
-  image: python:3.11-slim
+  image: python:3.11.11-slim
   before_script:
     - pip install --no-cache-dir --upgrade pip
-    - pip install --no-cache-dir -r requirements.txt
+    - pip install --no-cache-dir -r requirements-dev.txt
   script:
     - sh scripts/run_tests.sh
   artifacts:
@@ -62,9 +63,9 @@ test:
 
 build:
   stage: build
-  image: docker:latest
+  image: docker:27.5.1
   services:
-    - docker:dind
+    - docker:27.5.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
@@ -76,9 +77,9 @@ build:
 
 deploy:
   stage: deploy
-  image: docker:latest
+  image: docker:27.5.1
   services:
-    - docker:dind
+    - docker:27.5.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
@@ -93,9 +94,9 @@ deploy:
 
 dast:
   stage: dast
-  image: docker:latest
+  image: docker:27.5.1
   services:
-    - docker:dind
+    - docker:27.5.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""

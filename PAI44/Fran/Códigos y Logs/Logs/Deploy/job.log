@@ -1,78 +1,0 @@
-[0KRunning with gitlab-runner 17.10.0~pre.41.g5c23fd8e (5c23fd8e)[0;m
-[0K  on blue-4.saas-linux-small-amd64.runners-manager.gitlab.com/default J2nyww-s, system ID: s_cf1798852952[0;m
-section_start:1745261595:prepare_executor[0K[0K[36;1mPreparing the "docker+machine" executor[0;m[0;m
-[0KUsing Docker executor with image docker:latest ...[0;m
-[0KStarting service docker:dind...[0;m
-[0KPulling docker image docker:dind ...[0;m
-[0KUsing docker image sha256:721f8c2d35917e067eee791d06c09d565d2c4b6b95aa7df0190c04b56d3de9e0 for docker:dind with digest docker@sha256:f49e1c71b5d9f8ebe53715f78996ce42b8be4b1ec03875d187dfe3c03de1dc00 ...[0;m
-[0KWaiting for services to be up and running (timeout 30 seconds)...[0;m
-[0KPulling docker image docker:latest ...[0;m
-[0KUsing docker image sha256:721f8c2d35917e067eee791d06c09d565d2c4b6b95aa7df0190c04b56d3de9e0 for docker:latest with digest docker@sha256:f49e1c71b5d9f8ebe53715f78996ce42b8be4b1ec03875d187dfe3c03de1dc00 ...[0;m
-section_end:1745261626:prepare_executor[0Ksection_start:1745261626:prepare_script[0K[0K[36;1mPreparing environment[0;m[0;m
-Running on runner-j2nyww-s-project-68491501-concurrent-0 via runner-j2nyww-s-s-l-s-amd64-1745261554-287f5a30...
-section_end:1745261626:prepare_script[0Ksection_start:1745261626:get_sources[0K[0K[36;1mGetting source from Git repository[0;m[0;m
-[32;1mFetching changes with git depth set to 20...[0;m
-Initialized empty Git repository in /builds/adrirob2003/pai4/.git/
-[32;1mCreated fresh repository.[0;m
-[32;1mChecking out 0b3dec68 as detached HEAD (ref is main)...[0;m
-
-[32;1mSkipping Git submodules setup[0;m
-[32;1m$ git remote set-url origin "${CI_REPOSITORY_URL}" || echo 'Not a git repository; skipping'[0;m
-section_end:1745261628:get_sources[0Ksection_start:1745261628:download_artifacts[0K[0K[36;1mDownloading artifacts[0;m[0;m
-[32;1mDownloading artifacts for SCA (9779753390)...[0;m
-Downloading artifacts from coordinator... ok      [0;m  host[0;m=storage.googleapis.com id[0;m=9779753390 responseStatus[0;m=200 OK token[0;m=66_Ls7syv
-[32;1mDownloading artifacts for IaC-Security (9779753393)...[0;m
-Downloading artifacts from coordinator... ok      [0;m  host[0;m=storage.googleapis.com id[0;m=9779753393 responseStatus[0;m=200 OK token[0;m=66_Ls7syv
-[32;1mDownloading artifacts for Test (9779753394)...[0;m
-Downloading artifacts from coordinator... ok      [0;m  host[0;m=storage.googleapis.com id[0;m=9779753394 responseStatus[0;m=200 OK token[0;m=66_Ls7syv
-section_end:1745261630:download_artifacts[0Ksection_start:1745261630:step_script[0K[0K[36;1mExecuting "step_script" stage of the job script[0;m[0;m
-[0KUsing docker image sha256:721f8c2d35917e067eee791d06c09d565d2c4b6b95aa7df0190c04b56d3de9e0 for docker:latest with digest docker@sha256:f49e1c71b5d9f8ebe53715f78996ce42b8be4b1ec03875d187dfe3c03de1dc00 ...[0;m
-[32;1m$ docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com[0;m
-WARNING! Using --password via the CLI is insecure. Use --password-stdin.
-
-WARNING! Your credentials are stored unencrypted in '/root/.docker/config.json'.
-Configure a credential helper to remove this warning. See
-https://docs.docker.com/go/credential-store/
-
-Login Succeeded
-[32;1m$ docker pull registry.gitlab.com/$CI_PROJECT_PATH/myapp:latest[0;m
-latest: Pulling from adrirob2003/pai4/myapp
-4a679ac3b09f: Pulling fs layer
-2a47a8c4fd5c: Pulling fs layer
-9c538fc35491: Pulling fs layer
-47bbb0afa7fe: Pulling fs layer
-d4bdff3929ca: Pulling fs layer
-df7089728927: Pulling fs layer
-5b09a1c19986: Pulling fs layer
-d4bdff3929ca: Waiting
-47bbb0afa7fe: Waiting
-df7089728927: Waiting
-5b09a1c19986: Waiting
-2a47a8c4fd5c: Verifying Checksum
-2a47a8c4fd5c: Download complete
-9c538fc35491: Verifying Checksum
-9c538fc35491: Download complete
-47bbb0afa7fe: Verifying Checksum
-47bbb0afa7fe: Download complete
-4a679ac3b09f: Verifying Checksum
-4a679ac3b09f: Download complete
-d4bdff3929ca: Verifying Checksum
-d4bdff3929ca: Download complete
-5b09a1c19986: Verifying Checksum
-5b09a1c19986: Download complete
-df7089728927: Verifying Checksum
-df7089728927: Download complete
-4a679ac3b09f: Pull complete
-2a47a8c4fd5c: Pull complete
-9c538fc35491: Pull complete
-47bbb0afa7fe: Pull complete
-d4bdff3929ca: Pull complete
-df7089728927: Pull complete
-5b09a1c19986: Pull complete
-Digest: sha256:d548315755679d63fd59e3833c31bf144756da8cda0ccbe22ebf320ed2fb6b89
-Status: Downloaded newer image for registry.gitlab.com/adrirob2003/pai4/myapp:latest
-registry.gitlab.com/adrirob2003/pai4/myapp:latest
-[32;1m$ docker run -d -p 8080:80 registry.gitlab.com/$CI_PROJECT_PATH/myapp:latest[0;m
-c7bff17f65074aa379905d1f7bf77bb963ed1a63f63bae8e657c3a56569df7ec
-section_end:1745261640:step_script[0Ksection_start:1745261640:cleanup_file_variables[0K[0K[36;1mCleaning up project directory and file based variables[0;m[0;m
-section_end:1745261641:cleanup_file_variables[0K[32;1mJob succeeded[0;m
