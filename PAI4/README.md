@@ -1,6 +1,6 @@
 # PAI-4 DevSecOps Pipeline
 
-Proyecto DevSecOps completo para la entrega `PAI-4`, preparado como version final dentro de `PAI4/`.
+Proyecto DevSecOps completo para la entrega `PAI-4`.
 
 ## Resumen
 
