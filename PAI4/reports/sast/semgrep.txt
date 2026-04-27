@@ -6,7 +6,6 @@
                
     app/main.py
    ❯❯❱ security.sast.flask-legacy-markup-user-input
-          ❰❰ Blocking ❱❱
           User-controlled content wrapped with Markup disables escaping and can reintroduce XSS.
                                                                                                 
           222┆ return render_template("legacy.html", query=Markup(query), user=get_current_user())

@@ -23,3 +23,4 @@ sleep 10
 docker run --rm --network pai4-net curlimages/curl:8.11.1 curl -fsS http://pai4-app:5000/health > reports/deploy/healthcheck.json
 docker ps --filter name=pai4-app --format '{{.ID}} {{.Image}} {{.Status}} {{.Ports}}' > reports/deploy/docker-ps.txt
 docker logs pai4-app > reports/deploy/app.log 2>&1
+

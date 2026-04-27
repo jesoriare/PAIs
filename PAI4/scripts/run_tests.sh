@@ -8,3 +8,4 @@ pytest \
   --json-report \
   --json-report-file=reports/tests/pytest-report.json \
   tests/security > reports/tests/pytest.log 2>&1
+

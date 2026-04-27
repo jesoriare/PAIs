@@ -7,3 +7,4 @@ semgrep scan \
   --output reports/sast/semgrep.txt \
   --json-output=reports/sast/semgrep.json \
   app 2> reports/sast/semgrep.log || true
+

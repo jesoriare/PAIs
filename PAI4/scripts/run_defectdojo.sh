@@ -60,3 +60,4 @@ The stage executed live API requests against DefectDojo's `/api/v2/reimport-scan
 
 Review `attempts.tsv` and the response JSON files in this directory to confirm which imports were accepted by the target instance.
 EOF
+

@@ -34,3 +34,4 @@ docker run --rm \
   -x zap-report.xml > reports/dast/zap.log 2>&1 || true
 
 docker logs pai4-app-dast > reports/dast/app.log 2>&1
+
