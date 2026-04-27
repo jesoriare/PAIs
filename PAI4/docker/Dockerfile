@@ -12,6 +12,15 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app app
 COPY scripts scripts
 
+RUN useradd --create-home --uid 10001 appuser && \
+    mkdir -p /opt/pai4/data && \
+    chown -R appuser:appuser /opt/pai4
+
 EXPOSE 5000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD python -c "from urllib.request import urlopen; urlopen('http://127.0.0.1:5000/health').read()"
+
+USER appuser
 
 CMD ["sh", "-c", "python scripts/bootstrap_users.py && gunicorn --bind 0.0.0.0:5000 app.main:app"]

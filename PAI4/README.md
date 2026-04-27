@@ -1,72 +1,132 @@
-# PAI4 - DevSecOps Supply Chain
+﻿# PAI-4 DevSecOps Pipeline
 
-Proyecto de prueba para el `PAI 4`, centrado en montar un pipeline `DevSecOps`
-para una aplicacion web pequena.
+Proyecto DevSecOps completo para la entrega `PAI-4`, preparado como version final del trabajo.
 
-## Stack
+## Resumen
 
-- `Flask` para la aplicacion web
-- `pytest` para tests automatizados
-- `pip-audit` para `SCA`
-- `Bandit` para `SAST`
-- `Trivy` para `Security IaC`
-- `OWASP ZAP` para `DAST`
-- `DefectDojo` como herramienta de gestion de vulnerabilidades propuesta
+La soluciÃ³n se ha reconstruido desde cero tomando materiales previos solo como referencia de problemas habituales. La decisiÃ³n fue no reutilizar cÃ³digo anterior porque:
+
+- los tests fallaban por errores ajenos al control de seguridad
+- el pipeline no estaba preparado para una ejecuciÃ³n limpia y trazable
+- habÃ­a configuraciones inseguras como un token de Sonar hardcodeado
+
+La soluciÃ³n final incluye:
+
+- aplicaciÃ³n mÃ­nima en Flask con autenticaciÃ³n, autorizaciÃ³n, formulario validado y cÃ¡lculo de totales en servidor
+- una ruta legacy intencionalmente insegura para que SAST y DAST detecten vulnerabilidades reales
+- pipeline GitLab CI/CD con las fases obligatorias:
+  `sca -> sast -> iac -> test -> build -> deploy -> dast -> vulnerability-management`
+- evidencias reales ya generadas en `reports/`
+
+## Documentos principales
+
+- `README.md`: visiÃ³n general del proyecto
+- `Manual-Verificacion.md`: guÃ­a paso a paso para comprobar que todo estÃ¡ bien
+- `Informe-PAI4.md`: memoria de entrega alineada con el enunciado
 
 ## Estructura
 
-- `app.py`: punto de entrada de la aplicacion
-- `src/pai4_app/`: logica principal de la app
-- `tests/`: tests funcionales y de seguridad
-- `.gitlab-ci.yml`: pipeline `CI/CD` y etapas `DevSecOps`
-- `.semgrep.yml`: reglas locales de analisis estatico
-- `Dockerfile`: construccion de imagen
-- `deployment/`: artefactos de despliegue simples
-- `scripts/`: scripts auxiliares de ejecucion e integracion
-- `docs/`: material de apoyo para informe y manual
+```text
+PAI44/
+â”œâ”€â”€ app/
+â”œâ”€â”€ docker/
+â”œâ”€â”€ security/
+â”œâ”€â”€ tests/
+â”œâ”€â”€ reports/
+â”œâ”€â”€ scripts/
+â”œâ”€â”€ .gitlab-ci.yml
+â”œâ”€â”€ README.md
+â””â”€â”€ Informe-PAI4.md
+```
 
-## Ejecucion local
+## AplicaciÃ³n
+
+La app expone:
+
+- `GET /login` y `POST /login`
+- `GET /dashboard` protegido por sesiÃ³n
+- `GET /admin/audit` restringido a rol `admin`
+- `GET/POST /feedback` con validaciÃ³n de entrada y renderizado escapado
+- `POST /checkout` con cÃ¡lculo de total exclusivamente en servidor
+- `GET /legacy/search` como ruta legacy vulnerable para generar evidencia de scanners
+- `GET /health` para despliegue y verificaciÃ³n
+
+## EjecuciÃ³n local
+
+### 1. Tests de seguridad
 
 ```powershell
-cd PAI4
 python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements-dev.txt
-python app.py
+.\\.venv\\Scripts\\python -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python -m pytest
 ```
 
-La app quedara disponible en `http://127.0.0.1:5000`.
-
-## Tests
+### 2. Despliegue con Docker Compose
 
 ```powershell
-pytest
+$env:PAI4_ADMIN_PASSWORD="cambia-esta-clave"
+$env:PAI4_MEMBER_PASSWORD="cambia-esta-clave"
+docker compose -f docker/docker-compose.yml up --build
 ```
 
-## Herramientas de seguridad local
+La aplicaciÃ³n queda en `http://localhost:5000`.
 
-### SCA
+### 3. ReproducciÃ³n de las fases de seguridad
 
-```powershell
-pip-audit -r requirements.txt -f json -o reports/sca/pip-audit-report.json
-```
+En GitLab CI se usan directamente los scripts del proyecto:
 
-### SAST
+- `sh scripts/run_sca.sh`
+- `sh scripts/run_sast.sh`
+- `sh scripts/run_iac.sh`
+- `sh scripts/run_tests.sh`
+- `sh scripts/run_build.sh`
+- `sh scripts/run_deploy.sh`
+- `sh scripts/run_dast.sh`
+- `sh scripts/run_defectdojo.sh`
 
-```powershell
-bandit -r src tests -f json -o reports/sast/bandit-report.json
-```
+En Windows local conviene ejecutar SAST, IaC y DAST con Docker, igual que en CI.
 
-### IaC
+## Variables de CI/CD
 
-```powershell
-trivy config --format json -o reports/iac/trivy-config-report.json .
-```
+Variables recomendadas:
 
-### DAST
+- `DEFECTDOJO_URL`
+- `DEFECTDOJO_API_TOKEN`
+- `PAI4_ADMIN_PASSWORD` opcional para despliegues deterministas
+- `PAI4_MEMBER_PASSWORD` opcional para despliegues deterministas
 
-Con la app levantada:
+Si no se definen las credenciales de DefectDojo, la fase `vulnerability-management` no falla: deja constancia de la limitaciÃ³n en `reports/vulnerability-management/`.
 
-```powershell
-docker run --rm -t owasp/zap2docker-stable zap-baseline.py -t http://host.docker.internal:5000 -J /zap/wrk/zap-report.json
-```
+## Evidencias generadas
+
+| Fase | Evidencia principal |
+| --- | --- |
+| SCA | `reports/sca/pip-audit-report.json` |
+| SAST | `reports/sast/semgrep.json` |
+| IaC | `reports/iac/trivy-iac-report.json` |
+| Test | `reports/tests/pytest-report.json` |
+| Build | `reports/build/docker-build.log` |
+| Deploy | `reports/deploy/healthcheck.json` |
+| DAST | `reports/dast/zap-report.json` |
+| Vulnerability management | `reports/vulnerability-management/README.md` |
+
+## Hallazgos intencionales
+
+- SCA: `security/sca/requirements-sca.txt` aÃ±ade `urllib3==1.25.8`
+- SAST: `app/main.py` usa `Markup(query)` en la ruta legacy
+- IaC: `docker/Dockerfile` no define usuario no privilegiado
+- DAST: la app no incluye endurecimiento de cabeceras y mantiene la ruta legacy vulnerable
+
+## Endurecimiento recomendado
+
+Para convertir esta demo en una versiÃ³n endurecida:
+
+- actualizar dependencias vulnerables detectadas por `pip-audit`
+- eliminar `Markup(query)` y renderizar el input escapado
+- aÃ±adir `USER appuser` y `HEALTHCHECK` al Dockerfile
+- incorporar protecciÃ³n CSRF, `Content-Security-Policy`, `X-Frame-Options` y `X-Content-Type-Options`
+
+## Informe
+
+La memoria principal estÃ¡ en `Informe-PAI4.md` y referencia las evidencias reales ya presentes en `reports/`.
+

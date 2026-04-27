@@ -1,4 +1,4 @@
-# PAI 4 - DevSecOps
+﻿# PAI 4 - DevSecOps
 
 Seguridad en Sistemas Informaticos y en Internet  
 Security Team 9  
@@ -19,13 +19,13 @@ La solucion final incluye:
 - un conjunto nuevo de pruebas de seguridad estables y orientadas a controles reales
 - evidencias verificables almacenadas en `reports/`
 
-La referencia del proyecto anterior en `Fran/` se utilizo solo para detectar problemas a evitar. No se reutilizo su implementacion porque contenia tests no fiables y configuraciones poco seguras.
+La referencia del proyecto anterior se utilizo solo para detectar problemas a evitar. No se reutilizo su implementacion porque contenia tests no fiables y configuraciones poco seguras.
 
 ## Parte I. Informe tecnico
 
 ### 1. Alcance y arquitectura de la solucion
 
-La solucion se ha implementado integramente en la carpeta `Nuevo/` y se apoya en una aplicacion web Flask con almacenamiento SQLite, empaquetado Docker y automatizacion mediante GitLab CI.
+La solucion se ha implementado integramente en la carpeta `PAI44/` y se apoya en una aplicacion web Flask con almacenamiento SQLite, empaquetado Docker y automatizacion mediante GitLab CI.
 
 | Elemento | Implementacion |
 | --- | --- |
@@ -204,7 +204,7 @@ Para ejecutar la solucion localmente se necesita:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python -m pip install --upgrade pip
-.\.venv\Scripts\python -m pip install -r requirements.txt
+.\\.venv\\Scripts\\python -m pip install -r requirements-dev.txt
 $env:PYTHONPATH='.'
 .\.venv\Scripts\python -m pytest tests\security
 ```
@@ -291,3 +291,4 @@ La pipeline utiliza estos scripts:
 ### 3. Conclusiones finales
 
 La entrega satisface los objetivos tecnicos del PAI-4 y presenta una cadena DevSecOps coherente, reproducible y defendible. La solucion prioriza claridad, evidencia y trazabilidad por encima de complejidad innecesaria, lo que facilita tanto la correccion como la demostracion practica ante el profesor.
+
